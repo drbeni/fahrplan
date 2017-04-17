@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fahrplan</title>
+    <link rel="stylesheet" href="/static/auto-complete.min.css"/>
+    <link rel="stylesheet" href="/static/fahrplan.min.css"/>
+    <script src="/static/auto-complete.min.js"></script>
+</head>
+<body>
+<table>
+    <tr class="query_row">
+        <td><input name="q" type="text" id="from" placeholder="Von"/></td>
+        <td rowspan="2"><button class="switch_locations" onclick="switch_locations()">⇅</button></td>
+    </tr>
+    <tr class="query_row">
+        <td><input name="q" type="text" id="to" placeholder="Nach"/></td>
+    </tr>
+    <tr class="query_row">
+        <td colspan="2">
+            <div style="float: left">
+                <button onclick="incrementBy('date', 1)" class="time_button">+</button>
+                <br/>
+                <input name="date" id="date" class="date_input" value=""/><br/>
+                <button onclick="incrementBy('date', -1)" class="time_button">-</button>
+            </div>
+            <div class="time">
+                <button onclick="incrementBy('hour', 1)" class="time_button">+</button>
+                <br/>
+                <input name="hour" id="hour" class="hour_input" value="{{ hour }}"/>&nbsp:<br/>
+                <button onclick="incrementBy('hour', -1)" class="time_button">-</button>
+            </div>
+            <div class="time">
+                <button onclick="incrementBy('minute', 1)" class="time_button">+</button>
+                <br/>
+                <input name="minute" id="minute" class="minute_input" value="{{ minute }}"/><br/>
+                <button onclick="incrementBy('minute', -1)" class="time_button">-</button>
+            </div>
+            <div class="time">
+                <button style="margin-top: 2.3em;" onclick="initTimeSelect()" class="time-button">Jetzt</button>
+            </div>
+        </td>
+    </tr>
+    <tr class="query_row">
+        <td colspan="2">
+            <button onclick="do_query()" name="do_query" id="query_button">Suchen</button>
+        </td>
+    </tr>
+</table>
+<div id="connections" style="display: none">
+    <table id="results"></table>
+</div>
+</body>
+<script src="/static/fahrplan.min.js"></script>
+</html>
