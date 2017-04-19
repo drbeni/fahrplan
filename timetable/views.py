@@ -1,7 +1,7 @@
 import requests
 import ujson as json
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from fahrplan import settings
 
 
@@ -13,22 +13,22 @@ def query(request, term):
     ret = []
     if len(term) > 1:
         r = requests.get(
-            "https://free.viapi.ch/v1/stations?apiKeyWeb=V001B9054D6D-FA3A-4FDC-A054-CCE51E07D6DA&query=" + term)
+            "https://free.viapi.ch/v1/stations?apiKeyWeb={}&query=".format(settings.API_KEY) + term)
         for match in r.json():
             ret.append(match['name'])
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
 
-def connection(request, selected_time, start, to):
-    ret = []
-    departure = "true"
+def connection(request, departure, selected_time, start, to):
+    departure = "true" if departure == "1" else "false"
 
     if start and to:
         r = requests.get(
             "https://free.viapi.ch/v1/connection?apiKeyWeb={}&from={}&to={}&time={}&departure={}".format(
                 settings.API_KEY, start, to, selected_time, departure))
-        ret = []
-        for con in r.json()["connections"]:
+        data = r.json()
+        connections = []
+        for con in data["connections"]:
             sections = []
             platform = ""
             name = ""
@@ -36,8 +36,7 @@ def connection(request, selected_time, start, to):
                 if not platform and section["from"]["platform"]:
                     platform = section["from"]["platform"]
                 if not name and section["route"]:
-                    name = "{} {} nach {}".format(section["route"]["name"], section["route"]["infoName"],
-                                                  section["route"]["destination"])
+                    name = "{} nach {}".format(section["route"]["name"], section["route"]["destination"])
 
                 sections.append(
                     {
@@ -47,14 +46,14 @@ def connection(request, selected_time, start, to):
                         "to": section["to"]["location"]["name"],
                         "to_platform": section["to"]["platform"],
                         "to_time": section["to"]["time"],
-                        "route": "{} {} nach {}".format(section["route"]["name"], section["route"]["infoName"],
-                                                        section["route"]["destination"]) if section[
+                        "route": "{} nach {}".format(section["route"]["name"],
+                                                     section["route"]["destination"]) if section[
                             "route"] else "Fussweg",
 
                     }
                 )
 
-            ret.append(
+            connections.append(
                 {
                     "duration": con["duration"],
                     "transfers": con["transfers"],
@@ -68,4 +67,18 @@ def connection(request, selected_time, start, to):
                 }
             )
 
-    return HttpResponse(json.dumps(ret), content_type="application/json")
+        prev_time = 0
+        for value in data["prevRequest"].split("&"):
+            if value.startswith("time="):
+                prev_time = int(value.split("=")[1])
+                break
+
+        next_time = 0
+        for value in data["nextRequest"].split("&"):
+            if value.startswith("time="):
+                next_time = int(value.split("=")[1])
+                break
+
+        return HttpResponse(json.dumps({"connections": connections, "nextTime": next_time, "prevTime": prev_time}),
+                            content_type="application/json")
+    return Http404

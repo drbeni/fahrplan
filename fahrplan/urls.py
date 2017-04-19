@@ -22,8 +22,8 @@ from timetable import views
 
 urlpatterns = [
                   url(r'^$', views.index, name='index'),
-                  url(r'^query/(?P<term>\w+)$', views.query, name='query'),
-                  url(r'^connection/(?P<selected_time>\d+)/(?P<start>[^/]+)/(?P<to>.+)$', views.connection,
+                  url(r'^query/(?P<term>.+)$', views.query, name='query'),
+                  url(r'^connection/(?P<selected_time>\d+)/(?P<departure>\d)/(?P<start>[^/]+)/(?P<to>.+)$', views.connection,
                       name='connection'),
                   # url(r'^admin/', admin.site.urls),
               ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

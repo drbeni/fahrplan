@@ -31,17 +31,38 @@ new autoComplete({
     }
 });
 
-function incrementBy(elem_id, inc) {
-    if (elem_id == 'hour') {
-        hourInput.value = zeroPad(Math.min(Math.max(0, parseInt(hourInput.value) + inc), 23));
-    } else if (elem_id == 'minute') {
-        minuteInput.value = zeroPad((Math.max(((parseInt(parseInt(minuteInput.value) / 10)) + inc), 0) % 6) * 10);
-    } else if (elem_id == 'date') {
-        var newDate = new Date(0);
-        newDate.setMilliseconds(realDate.setDate(realDate.getDate() + inc));
-        dateInput.value = formatDate(newDate);
-        realDate = newDate;
+function incrementHour(inc) {
+    if (parseInt(hourInput.value) + inc > 23) {
+        incrementDate(1);
+        hourInput.value = '00';
     }
+    else if (parseInt(hourInput.value) + inc < 0) {
+        incrementDate(-1);
+        hourInput.value = 23;
+    } else {
+        hourInput.value = z(parseInt(hourInput.value) + inc);
+    }
+
+}
+
+function incrementMinute(inc) {
+    if (parseInt(minuteInput.value) + inc * 10 > 50) {
+        incrementHour(1);
+        minuteInput.value = '00';
+    }
+    else if (parseInt(minuteInput.value) + inc * 10 < 0) {
+        incrementHour(-1);
+        minuteInput.value = '50';
+    } else {
+        minuteInput.value = z((((parseInt(parseInt(minuteInput.value) / 10)) + inc) % 6) * 10);
+    }
+}
+
+function incrementDate(inc) {
+    var newDate = new Date(0);
+    newDate.setMilliseconds(realDate.setDate(realDate.getDate() + inc));
+    dateInput.value = formatDate(newDate);
+    realDate = newDate;
 }
 
 function switch_locations() {
@@ -66,10 +87,10 @@ function formatDuration(duration) {
 }
 
 function formatDate(date) {
-    return zeroPad(date.getDate()) + '.' + zeroPad(date.getMonth() + 1) + '.' + date.getFullYear();
+    return z(date.getDate()) + '.' + z(date.getMonth() + 1) + '.' + date.getFullYear();
 }
 
-function zeroPad(n) {
+function z(n) {
     if (n < 10)
         return '0' + n;
     return n;
@@ -96,8 +117,8 @@ function initTimeSelect() {
 
     dateInput.value = formatDate(now);
     realDate = now;
-    hourInput.value = zeroPad(now.getHours());
-    minuteInput.value = zeroPad(now.getMinutes());
+    hourInput.value = z(now.getHours());
+    minuteInput.value = z(now.getMinutes());
 }
 
 function getMidnightTime(date) {
@@ -105,16 +126,27 @@ function getMidnightTime(date) {
     return millis - (millis % 86400000);
 }
 
-function addTitleRow(table, name) {
-    var titleRow = table.insertRow(-1);
+function addTitleRow(table, name, append) {
+    var rowIndex = -1;
+    if (!append)
+        rowIndex = 0;
+
+    var titleRow = table.insertRow(rowIndex);
     var titleCell = titleRow.insertCell(0);
     titleRow.className = 'title_row';
     titleCell.colSpan = 3;
     titleCell.innerHTML = '<p class="connection_title">' + name + '</p>';
 }
 
-function addContentRow(table, connection, i) {
-    var contentRow = table.insertRow(-1);
+function addContentRow(table, connection, i, append) {
+    var contentRowIndex = -1;
+    var detailRowIndex = -1;
+    if (!append) {
+        contentRowIndex = 0;
+        detailRowIndex = 1;
+    }
+
+    var contentRow = table.insertRow(contentRowIndex);
 
     var startCol = contentRow.insertCell(0);
     var transferCol = contentRow.insertCell(1);
@@ -122,9 +154,9 @@ function addContentRow(table, connection, i) {
 
     startCol.innerHTML = '<p class="time">' + formatTime(connection.realDepartureTime) + '</p><p>' + formatPlatform(connection.platform) + '</p>';
     transferCol.innerHTML = '<p class="time">' + formatDuration(connection.duration) + '</p><p>Umst.: ' + connection.transfers + '</p>';
-    toCol.innerHTML = '<p class="time">' + formatTime(connection.realArrivalTime) + '</p><p><button id="show_detail_button_' + i + '" class="show_details" onclick="toggleConnectionDetails(' + i + ')">+</button></p>';
+    toCol.innerHTML = '<p class="time">' + formatTime(connection.realArrivalTime) + '</p><p><button id="show_detail_button_' + i + '" class="show_details" onclick="toggleConnectionDetails(\'' + i + '\')">+</button></p>';
 
-    var detailRow = table.insertRow(-1);
+    var detailRow = table.insertRow(detailRowIndex);
     var detailCol = detailRow.insertCell(0);
     detailRow.className = 'connection_details_row';
     detailCol.colSpan = 3;
@@ -142,15 +174,59 @@ function addConnectionDetail(detailDiv, section) {
     detailDiv.innerHTML += '<div class="location">' + section.from + '</div><div class="connection_details_route">' + connectionDetailsRoute + '</div>';
 }
 
-function do_query() {
+function addNextButton(table, time) {
+    var row = table.insertRow(-1);
+    var col = row.insertCell(0);
+    col.colSpan = 3;
+    col.style.backgroundColor = '#fff';
+    col.innerHTML = '<button onclick="do_query(' + time + ', true)" class="query_button">Sp&auml;ter</button>'
+}
 
+function addPrevButton(table, time) {
+    var row = table.insertRow(0);
+    var col = row.insertCell(0);
+    col.colSpan = 3;
+    col.style.backgroundColor = '#fff';
+    col.innerHTML = '<button onclick="do_query(' + time + ', false)" class="query_button">Fr&uuml;her</button>'
+}
 
+function processConnection(table, connections, selectedTime, departure, i) {
+    var connection = connections[i];
+
+    if (departure) {
+        addTitleRow(table, connection.name, departure);
+        addContentRow(table, connection, selectedTime + '_' + i, departure);
+    } else {
+        addContentRow(table, connection, selectedTime + '_' + i, departure);
+        addTitleRow(table, connection.name, departure);
+    }
+
+    var detailDiv = document.getElementById("con_details_" + selectedTime + '_' + i);
+    detailDiv.innerHTML = '';
+
+    for (var s = 0; s < connection.sections.length; s++) {
+        var section = connection.sections[s];
+        addConnectionDetail(detailDiv, section);
+    }
+
+    detailDiv.innerHTML += '<div class="location">' + connection.to + '</div>'
+}
+
+function do_query(time, departure) {
     var table = document.getElementById("results");
-    table.innerHTML = "";
+    var refresh = false;
+    if (time == 0) {
+        table.innerHTML = "";
+        var selectedTime = getMidnightTime(realDate) + (parseInt(hourInput.value) - 1) * 3600000 + parseInt(minuteInput.value) * 60000;
+    } else {
+        refresh = true;
+        var selectedTime = time;
+    }
 
     var from = document.getElementById("from").value;
     var to = document.getElementById("to").value;
-    var selectedTime = getMidnightTime(realDate) + (parseInt(hourInput.value) - 1) * 3600000 + parseInt(minuteInput.value) * 60000;
+    var d = departure ? "1" : 0;
+
 
     if (from.length > 1 && to.length > 1) {
         var connectionDiv = document.getElementById("connections");
@@ -158,25 +234,28 @@ function do_query() {
             connectionDiv.style.display = "block";
 
         var ajax = new XMLHttpRequest();
-        ajax.open("GET", "connection/" + selectedTime + '/' + from + "/" + to, true);
+        ajax.open("GET", "connection/" + selectedTime + '/' + d + '/' + from + "/" + to, true);
         ajax.onload = function (data) {
+            if (refresh) {
+                table.deleteRow(0);
+                table.deleteRow(-1);
+            }
 
             var response_data = JSON.parse(data.target.response);
-            for (var i = 0; i < response_data.length; i++) {
-                var connection = response_data[i];
-                addTitleRow(table, connection.name);
-                addContentRow(table, connection, i);
 
-                var detailDiv = document.getElementById("con_details_" + i);
-                detailDiv.innerHTML = '';
-
-                for (var s = 0; s < connection.sections.length; s++) {
-                    var section = connection.sections[s];
-                    addConnectionDetail(detailDiv, section);
+            if (departure) {
+                addPrevButton(table, response_data.prevTime);
+                for (var i = 0; i < response_data.connections.length; i++) {
+                    processConnection(table, response_data.connections, selectedTime, departure, i);
                 }
-
-                detailDiv.innerHTML += '<div class="location">' + connection.to + '</div>'
+            } else {
+                for (var i = response_data.connections.length - 1; i >= 0; i--) {
+                    processConnection(table, response_data.connections, selectedTime, departure, i);
+                }
+                addPrevButton(table, response_data.prevTime);
             }
+            addNextButton(table, response_data.nextTime);
+
         };
         ajax.send();
     }

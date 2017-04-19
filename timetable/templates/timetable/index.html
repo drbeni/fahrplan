@@ -4,37 +4,39 @@
     <meta charset="UTF-8">
     <title>Fahrplan</title>
     <link rel="stylesheet" href="/static/auto-complete.min.css"/>
-    <link rel="stylesheet" href="/static/fahrplan.min.css"/>
+    <link rel="stylesheet" href="/static/fahrplan.css"/>
     <script src="/static/auto-complete.min.js"></script>
 </head>
 <body>
 <table>
     <tr class="query_row">
-        <td><input name="q" type="text" id="from" placeholder="Von"/></td>
-        <td rowspan="2"><button class="switch_locations" onclick="switch_locations()">⇅</button></td>
+        <td><input type="text" id="from" placeholder="Von"/></td>
+        <td rowspan="2">
+            <button class="switch_locations" onclick="switch_locations()">⇅</button>
+        </td>
     </tr>
     <tr class="query_row">
-        <td><input name="q" type="text" id="to" placeholder="Nach"/></td>
+        <td><input type="text" id="to" placeholder="Nach"/></td>
     </tr>
     <tr class="query_row">
         <td colspan="2">
             <div style="float: left">
-                <button onclick="incrementBy('date', 1)" class="time_button">+</button>
+                <button onclick="incrementDate(1)" class="time_button">+</button>
                 <br/>
-                <input name="date" id="date" class="date_input" value=""/><br/>
-                <button onclick="incrementBy('date', -1)" class="time_button">-</button>
+                <input id="date" class="date_input" value=""/><br/>
+                <button onclick="incrementDate(-1)" class="time_button">-</button>
             </div>
             <div class="time">
-                <button onclick="incrementBy('hour', 1)" class="time_button">+</button>
+                <button onclick="incrementHour(1)" class="time_button">+</button>
                 <br/>
-                <input name="hour" id="hour" class="hour_input" value="{{ hour }}"/>&nbsp:<br/>
-                <button onclick="incrementBy('hour', -1)" class="time_button">-</button>
+                <input id="hour" class="hour_input" value="{{ hour }}"/>&nbsp:<br/>
+                <button onclick="incrementHour(-1)" class="time_button">-</button>
             </div>
             <div class="time">
-                <button onclick="incrementBy('minute', 1)" class="time_button">+</button>
+                <button onclick="incrementMinute(1)" class="time_button">+</button>
                 <br/>
-                <input name="minute" id="minute" class="minute_input" value="{{ minute }}"/><br/>
-                <button onclick="incrementBy('minute', -1)" class="time_button">-</button>
+                <input id="minute" class="minute_input" value="{{ minute }}"/><br/>
+                <button onclick="incrementMinute(-1)" class="time_button">-</button>
             </div>
             <div class="time">
                 <button style="margin-top: 2.3em;" onclick="initTimeSelect()" class="time-button">Jetzt</button>
@@ -43,13 +45,13 @@
     </tr>
     <tr class="query_row">
         <td colspan="2">
-            <button onclick="do_query()" name="do_query" id="query_button">Suchen</button>
+            <button onclick="do_query(0, true)" class="query_button">Suchen</button>
         </td>
     </tr>
 </table>
-<div id="connections" style="display: none">
+<div id="connections" style="display: none; border-top: 1px solid lightgray; margin-top: 0.5em">
     <table id="results"></table>
 </div>
 </body>
-<script src="/static/fahrplan.min.js"></script>
+<script src="/static/fahrplan.js"></script>
 </html>
