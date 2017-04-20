@@ -214,12 +214,12 @@ function processConnection(table, connections, selectedTime, departure, i) {
 
 function do_query(time, departure) {
     var table = document.getElementById("results");
-    var refresh = false;
+    var refresh = true;
     if (time == 0) {
         table.innerHTML = "";
         var selectedTime = getMidnightTime(realDate) + (parseInt(hourInput.value) - 1) * 3600000 + parseInt(minuteInput.value) * 60000;
     } else {
-        refresh = true;
+        refresh = false;
         var selectedTime = time;
     }
 
@@ -236,26 +236,26 @@ function do_query(time, departure) {
         var ajax = new XMLHttpRequest();
         ajax.open("GET", "connection/" + selectedTime + '/' + d + '/' + from + "/" + to, true);
         ajax.onload = function (data) {
-            if (refresh) {
-                table.deleteRow(0);
+            if (departure)
                 table.deleteRow(-1);
-            }
+            else
+                table.deleteRow(0);
 
             var response_data = JSON.parse(data.target.response);
 
             if (departure) {
-                addPrevButton(table, response_data.prevTime);
+                if (refresh)
+                    addPrevButton(table, response_data.prevTime);
                 for (var i = 0; i < response_data.connections.length; i++) {
                     processConnection(table, response_data.connections, selectedTime, departure, i);
                 }
+                addNextButton(table, response_data.nextTime);
             } else {
                 for (var i = response_data.connections.length - 1; i >= 0; i--) {
                     processConnection(table, response_data.connections, selectedTime, departure, i);
                 }
                 addPrevButton(table, response_data.prevTime);
             }
-            addNextButton(table, response_data.nextTime);
-
         };
         ajax.send();
     }
