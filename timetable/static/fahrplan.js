@@ -223,10 +223,9 @@ function do_query(time, departure) {
         var selectedTime = time;
     }
 
-    var from = document.getElementById("from").value;
-    var to = document.getElementById("to").value;
+    var from = document.getElementById("from").value.replace("/", "$.$");
+    var to = document.getElementById("to").value.replace("/", "$.$");
     var d = departure ? "1" : 0;
-
 
     if (from.length > 1 && to.length > 1) {
         var connectionDiv = document.getElementById("connections");
@@ -241,20 +240,24 @@ function do_query(time, departure) {
             else
                 table.deleteRow(0);
 
-            var response_data = JSON.parse(data.target.response);
+            if (data.target.status == 200) {
+                var response_data = JSON.parse(data.target.response);
 
-            if (departure) {
-                if (refresh)
+                if (departure) {
+                    if (refresh)
+                        addPrevButton(table, response_data.prevTime);
+                    for (var i = 0; i < response_data.connections.length; i++) {
+                        processConnection(table, response_data.connections, selectedTime, departure, i);
+                    }
+                    addNextButton(table, response_data.nextTime);
+                } else {
+                    for (var i = response_data.connections.length - 1; i >= 0; i--) {
+                        processConnection(table, response_data.connections, selectedTime, departure, i);
+                    }
                     addPrevButton(table, response_data.prevTime);
-                for (var i = 0; i < response_data.connections.length; i++) {
-                    processConnection(table, response_data.connections, selectedTime, departure, i);
                 }
-                addNextButton(table, response_data.nextTime);
             } else {
-                for (var i = response_data.connections.length - 1; i >= 0; i--) {
-                    processConnection(table, response_data.connections, selectedTime, departure, i);
-                }
-                addPrevButton(table, response_data.prevTime);
+                alert("Keine Verbindungen gefunden");
             }
         };
         ajax.send();
