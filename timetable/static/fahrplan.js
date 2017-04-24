@@ -223,8 +223,8 @@ function do_query(time, departure) {
         var selectedTime = time;
     }
 
-    var from = document.getElementById("from").value.replace("/", "$.$");
-    var to = document.getElementById("to").value.replace("/", "$.$");
+    var from = document.getElementById("from").value.split("/").join("$.$");
+    var to = document.getElementById("to").value.split("/").join("$.$");
     var d = departure ? "1" : 0;
 
     if (from.length > 1 && to.length > 1) {
