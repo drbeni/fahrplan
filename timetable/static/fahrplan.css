@@ -79,7 +79,7 @@ input.minute_input, input.hour_input {
 
 input.date_input {
     margin: 0.1em;
-    width: 6em;
+    width: 5em;
 }
 
 table#results {
