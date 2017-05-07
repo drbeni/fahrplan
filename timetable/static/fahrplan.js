@@ -197,7 +197,7 @@ function addConnectionDetail(detailDiv, section) {
 function addNextButton(table, time) {
     var row = table.insertRow(-1);
     var col = row.insertCell(0);
-    col.colSpan = 3;
+    col.colSpan = 4;
     col.style.backgroundColor = '#fff';
     col.innerHTML = '<button onclick="do_query(' + time + ', true)" class="query_button">Sp&auml;ter</button>'
 }
@@ -205,7 +205,7 @@ function addNextButton(table, time) {
 function addPrevButton(table, time) {
     var row = table.insertRow(0);
     var col = row.insertCell(0);
-    col.colSpan = 3;
+    col.colSpan = 4;
     col.style.backgroundColor = '#fff';
     col.innerHTML = '<button onclick="do_query(' + time + ', false)" class="query_button">Fr&uuml;her</button>'
 }
