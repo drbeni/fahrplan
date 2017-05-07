@@ -75,7 +75,7 @@ function switch_locations() {
 
 function formatTime(timestamp) {
     var date = new Date(0);
-    date.setSeconds(timestamp / 1000);
+    date.setSeconds(timestamp);
     var hours = date.getHours();
     var minutes = date.getMinutes();
     minutes = minutes < 10 ? '0' + minutes : minutes;
@@ -83,7 +83,7 @@ function formatTime(timestamp) {
 }
 
 function formatDuration(duration) {
-    return new Date(duration).toISOString().substr(11, 5);
+    return new Date(duration * 1000).toISOString().substr(11, 5);
 }
 
 function formatDate(date) {
@@ -122,8 +122,8 @@ function initTimeSelect() {
 }
 
 function getMidnightTime(date) {
-    var millis = date.getTime();
-    return millis - (millis % 86400000);
+    var seconds = date.getTime() / 1000;
+    return seconds - (seconds % 86400);
 }
 
 function addTitleRow(table, name, append) {
@@ -152,9 +152,9 @@ function addContentRow(table, connection, i, append) {
     var transferCol = contentRow.insertCell(1);
     var toCol = contentRow.insertCell(2);
 
-    startCol.innerHTML = '<p class="time">' + formatTime(connection.realDepartureTime) + '</p><p>' + formatPlatform(connection.platform) + '</p>';
-    transferCol.innerHTML = '<p class="time">' + formatDuration(connection.duration) + '</p><p>Umst.: ' + connection.transfers + '</p>';
-    toCol.innerHTML = '<p class="time">' + formatTime(connection.realArrivalTime) + '</p><p><button id="show_detail_button_' + i + '" class="show_details" onclick="toggleConnectionDetails(\'' + i + '\')">+</button></p>';
+    startCol.innerHTML = '<p class="time">' + formatTime(connection.departureTimestamp) + '</p><p>' + formatPlatform(connection.platform) + '</p>';
+    transferCol.innerHTML = '<p class="time">' + formatDuration(connection.arrivalTimestamp - connection.departureTimestamp) + '</p><p>Umst.: ' + connection.transfers + '</p>';
+    toCol.innerHTML = '<p class="time">' + formatTime(connection.arrivalTimestamp) + '</p><p><button id="show_detail_button_' + i + '" class="show_details" onclick="toggleConnectionDetails(\'' + i + '\')">+</button></p>';
 
     var detailRow = table.insertRow(detailRowIndex);
     var detailCol = detailRow.insertCell(0);
@@ -217,7 +217,7 @@ function do_query(time, departure) {
     var refresh = true;
     if (time == 0) {
         table.innerHTML = "";
-        var selectedTime = getMidnightTime(realDate) + (parseInt(hourInput.value) - 1) * 3600000 + parseInt(minuteInput.value) * 60000;
+        var selectedTime = getMidnightTime(realDate) + (parseInt(hourInput.value) - 1) * 3600 + parseInt(minuteInput.value) * 60;
     } else {
         refresh = false;
         var selectedTime = time;
@@ -225,7 +225,7 @@ function do_query(time, departure) {
 
     var from = document.getElementById("from").value.split("/").join("$.$");
     var to = document.getElementById("to").value.split("/").join("$.$");
-    var d = departure ? "1" : 0;
+    var d = departure ? 0 : 1;
 
     if (from.length > 1 && to.length > 1) {
         var connectionDiv = document.getElementById("connections");
