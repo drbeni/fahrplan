@@ -1,10 +1,10 @@
 import ujson as json
+import pytz
+from datetime import datetime
 
 import requests
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
-
-from fahrplan import settings
 
 
 def index(request):
@@ -24,20 +24,25 @@ def query(request, term):
 
 
 def connection(request, departure, selected_time, start, to):
-    # departure = "true" if departure == "1" else "false"
     start = start.replace("$.$", "/")
     to = to.replace("$.$", "/")
 
     if start and to:
+        tz = pytz.timezone('Europe/Zurich')
+        dt = datetime.fromtimestamp(int(selected_time), tz=tz)
+
         params = {
             "from": start,
             "to": to,
-            "time": selected_time,
+            "time": str(dt.time())[:5],
+            "date": str(dt.date()),
             "isArrivalTime": departure,
         }
         r = requests.get("https://transport.opendata.ch/v1/connections", params=params)
+
         data = r.json()
         connections = []
+        # print(r.text)
         try:
             for con in data["connections"]:
                 sections = []
@@ -57,13 +62,13 @@ def connection(request, departure, selected_time, start, to):
                             "route": "{} nach {}".format(section["journey"]["name"],
                                                          section["arrival"]["location"]["name"]) if section[
                                 "journey"] else "Fussweg",
-
+                            "capacity1st": section["journey"]["capacity1st"] if section["journey"] else None,
+                            "capacity2nd": section["journey"]["capacity2nd"] if section["journey"] else None,
                         }
                     )
 
                 connections.append(
                     {
-                        # "duration": con["duration"],
                         "transfers": con["transfers"],
                         "arrivalTimestamp": con["to"]["arrivalTimestamp"],
                         "departureTimestamp": con["from"]["departureTimestamp"],
@@ -72,28 +77,21 @@ def connection(request, departure, selected_time, start, to):
                         "platform": con["from"]["platform"],
                         "from": con["from"]["station"]["name"],
                         "to": con["to"]["station"]["name"],
+                        "capacity1st": con["capacity1st"],
+                        "capacity2nd": con["capacity2nd"],
                     }
                 )
 
-            prev_time = 0 if not connections else connections[0]["arrivalTimestamp"]
-            # for value in data["prevRequest"].split("&"):
-            #     if value.startswith("time="):
-            #         prev_time = int(value.split("=")[1])
-            #         break
-
-            next_time = 0
-            # for value in data["nextRequest"].split("&"):
-            #     if value.startswith("time="):
-            #         next_time = int(value.split("=")[1])
-            #         break
+            prev_time = 0 if not connections else connections[0]["arrivalTimestamp"] - 60
+            next_time = selected_time if not connections else connections[-1]["departureTimestamp"] + 60
 
             return HttpResponse(json.dumps({"connections": connections, "nextTime": next_time, "prevTime": prev_time}),
                                 content_type="application/json")
 
-        except ImportWarning:
-            pass
-        # except KeyError:
-        #     raise Http404("No connections found")
-        # except AttributeError:
-        #     raise Http404("No connections found")
+        except KeyError:
+            raise
+            raise Http404("No connections found")
+        except AttributeError:
+            raise
+            raise Http404("No connections found")
     raise Http404("No connections found")

@@ -1,4 +1,4 @@
-@media all and (max-width: 1081px) {
+@media all and (max-width: 960px) {
     html {
         font-family: arial, sans-serif;
         font-size: 5vw;
@@ -37,7 +37,7 @@
     }
 }
 
-@media all and (min-width: 1080px) {
+@media all and (min-width: 960px) {
     html {
         font-family: arial, sans-serif;
     }
@@ -138,4 +138,59 @@ tr.query_row > td {
 
 tr.title_row > td {
     border-top: 0.3em solid white;
+}
+
+div.klasse {
+    float: left;
+    margin-right: 0.3em;
+    padding-top: 0.1em;
+}
+
+.mod_svgsprite_icon {
+    height: 1.2em;
+}
+
+.mod_svgsprite_icon[class*=_oev] {
+    fill: #fff;
+    background: #27348b;
+}
+
+.mod_svgsprite_icon[class*=_product] {
+    fill: #fff;
+    background: #eb0000;
+}
+
+.mod_svgsprite_icon[class*=_oev] {
+    width: 1.33333em;
+    height: 1.33333em;
+    border-radius: 0.13333em;
+}
+
+.mod_svgsprite_icon[class*=_product] {
+    width: 3.46667em;
+    height: 1.33333em;
+    border-radius: 0.13333em;
+}
+
+.mod_svgsprite_icon[class*=_utilization] {
+    width: 1.07692em;
+}
+
+.mod_timetable_stage_connection {
+    line-height: 1.7;
+    margin-right: .26667em;
+    margin-top: .2em;
+}
+
+.mod_timetable_occupancy_item {
+    margin-right: .5em;
+    float: right;
+    width: 2.4em;
+    height: 1.2em;
+    font-size: 1em;
+    line-height: 1;
+}
+
+.mod_timetable_occupancy_item.var_high {
+    color: #eb0000;
 }

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <symbol id="SBB_utilization_high" viewBox="0 0 21 18">
+        <path fill="#EB0000" d="M6 5H1v6h1v6h3v-6h1V5z"></path>
+        <circle fill="#EB0000" cx="3.5" cy="2.5" r="1.5"></circle>
+        <path fill="#EB0000" d="M13 5H8v6h1v6h3v-6h1V5z"></path>
+        <circle fill="#EB0000" cx="10.5" cy="2.5" r="1.5"></circle>
+        <path fill="#EB0000" d="M20 5h-5v6h1v6h3v-6h1V5z"></path>
+        <circle fill="#EB0000" cx="17.5" cy="2.5" r="1.5"></circle>
+    </symbol>
+    <symbol id="SBB_utilization_low" viewBox="0 0 21 18">
+        <path d="M6 5H1v6h1v6h3v-6h1V5z"></path>
+        <circle cx="3.5" cy="2.5" r="1.5"></circle>
+        <path fill="#BCBCBC" d="M13 5H8v6h1v6h3v-6h1V5z"></path>
+        <circle fill="#BCBCBC" cx="10.5" cy="2.5" r="1.5"></circle>
+        <path fill="#BCBCBC" d="M20 5h-5v6h1v6h3v-6h1V5z"></path>
+        <circle fill="#BCBCBC" cx="17.5" cy="2.5" r="1.5"></circle>
+    </symbol>
+    <symbol id="SBB_utilization_medium" viewBox="0 0 21 18">
+        <path d="M6 5H1v6h1v6h3v-6h1V5z"></path>
+        <circle cx="3.5" cy="2.5" r="1.5"></circle>
+        <path d="M13 5H8v6h1v6h3v-6h1V5z"></path>
+        <circle cx="10.5" cy="2.5" r="1.5"></circle>
+        <path fill="#BCBCBC" d="M20 5h-5v6h1v6h3v-6h1V5z"></path>
+        <circle fill="#BCBCBC" cx="17.5" cy="2.5" r="1.5"></circle>
+    </symbol>
+</svg>

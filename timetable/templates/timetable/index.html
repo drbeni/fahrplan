@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Fahrplan</title>
     <link rel="stylesheet" href="/static/auto-complete.min.css"/>
     <link rel="stylesheet" href="/static/fahrplan.min.css"/>
     <script src="/static/auto-complete.min.js"></script>
 </head>
 <body>
+<object data="/static/icons.svg" type="image/svg+xml" style="display: none"></object>
 <table>
     <tr class="query_row">
-        <td><input type="text" id="from" placeholder="Von"/></td>
+        <td><input type="text" id="from" placeholder="Von" value="BN"/></td>
         <td rowspan="2">
             <button class="switch_locations" onclick="switch_locations()">⇅</button>
         </td>
     </tr>
     <tr class="query_row">
-        <td><input type="text" id="to" placeholder="Nach"/></td>
+        <td><input type="text" id="to" placeholder="Nach" value="ZMA"/></td>
     </tr>
     <tr class="query_row">
         <td colspan="2">
@@ -54,5 +55,5 @@
     <table id="results"></table>
 </div>
 </body>
-<script src="/static/fahrplan.js"></script>
+<script src="/static/fahrplan.min.js"></script>
 </html>

@@ -126,6 +126,20 @@ function getMidnightTime(date) {
     return seconds - (seconds % 86400);
 }
 
+function getCapacityIcon(capacity, klasse) {
+    switch (capacity) {
+        case 1:
+            return '<div class="mod_timetable_occupancy_item var_low "><div class="klasse">' + klasse + '.</div><svg class="mod_svgsprite_icon var_SBB_utilization_low" role="img"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/static/icons.svg#SBB_utilization_low"></use></svg></div>';
+            break;
+        case 2:
+            return '<div class="mod_timetable_occupancy_item var_medium"><div class="klasse">' + klasse + '.</div><svg class="mod_svgsprite_icon var_SBB_utilization_medium" role="img"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/static/icons.svg#SBB_utilization_medium"></use></svg></div>';
+            break;
+        case 3:
+            return '<div class="mod_timetable_occupancy_item var_high"><div class="klasse">' + klasse + '.</div><svg class="mod_svgsprite_icon var_SBB_utilization_high" role="img"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="/static/icons.svg#SBB_utilization_high"></use></svg></div>';
+            break;
+    }
+}
+
 function addTitleRow(table, name, append) {
     var rowIndex = -1;
     if (!append)
@@ -134,7 +148,7 @@ function addTitleRow(table, name, append) {
     var titleRow = table.insertRow(rowIndex);
     var titleCell = titleRow.insertCell(0);
     titleRow.className = 'title_row';
-    titleCell.colSpan = 3;
+    titleCell.colSpan = 4;
     titleCell.innerHTML = '<p class="connection_title">' + name + '</p>';
 }
 
@@ -150,23 +164,29 @@ function addContentRow(table, connection, i, append) {
 
     var startCol = contentRow.insertCell(0);
     var transferCol = contentRow.insertCell(1);
-    var toCol = contentRow.insertCell(2);
+    var infoCol = contentRow.insertCell(2);
+    var toCol = contentRow.insertCell(3);
 
     startCol.innerHTML = '<p class="time">' + formatTime(connection.departureTimestamp) + '</p><p>' + formatPlatform(connection.platform) + '</p>';
     transferCol.innerHTML = '<p class="time">' + formatDuration(connection.arrivalTimestamp - connection.departureTimestamp) + '</p><p>Umst.: ' + connection.transfers + '</p>';
+    if (connection.capacity1st)
+        infoCol.innerHTML = getCapacityIcon(connection.capacity2nd, 2) + getCapacityIcon(connection.capacity1st, 1);
     toCol.innerHTML = '<p class="time">' + formatTime(connection.arrivalTimestamp) + '</p><p><button id="show_detail_button_' + i + '" class="show_details" onclick="toggleConnectionDetails(\'' + i + '\')">+</button></p>';
 
     var detailRow = table.insertRow(detailRowIndex);
     var detailCol = detailRow.insertCell(0);
     detailRow.className = 'connection_details_row';
-    detailCol.colSpan = 3;
+    detailCol.colSpan = 4;
     detailCol.innerHTML = '<div class="connection_details" style="display: none" id="con_details_' + i + '"></div>';
 }
 
 function addConnectionDetail(detailDiv, section) {
     var connectionDetailsRoute = '<p class="time">' + formatTime(section.from_time) + '</p>';
     connectionDetailsRoute += '<p class="platform">' + formatPlatform(section.from_platform) + '</p>';
-    connectionDetailsRoute += '<p>' + section.route + '</p>';
+    connectionDetailsRoute += '<p>' + section.route;
+    if (section.capacity1st)
+        connectionDetailsRoute += getCapacityIcon(section.capacity2nd, 2) + getCapacityIcon(section.capacity1st, 1);
+    connectionDetailsRoute += '</p>';
     connectionDetailsRoute += '<p class="italic">' + formatDuration(section.to_time - section.from_time) + '</p>';
     connectionDetailsRoute += '<p class="time">' + formatTime(section.to_time) + '</p>';
     connectionDetailsRoute += '<p class="platform">' + formatPlatform(section.to_platform) + '</p>';
